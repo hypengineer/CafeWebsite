@@ -1,4 +1,5 @@
-﻿using Cafe.Models;
+﻿using Cafe.Data;
+using Cafe.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,15 +14,17 @@ namespace Cafe.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ApplicationDbContext _db;
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var menu=_db.Menus.Where(i=>i.Ozel).ToList();
+            return View(menu);
         }
 		public IActionResult Contact()
 		{
