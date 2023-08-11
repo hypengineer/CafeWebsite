@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NToastNotify;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,10 +18,12 @@ namespace Cafe.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _db;
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        private readonly IToastNotification _toast;
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, IToastNotification toast)
         {
             _logger = logger;
             _db = db;
+            _toast = toast;
         }
 
         public IActionResult Index()
@@ -67,6 +70,7 @@ namespace Cafe.Areas.Customer.Controllers
             {
                 _db.Add(rezervasyon);
                 await _db.SaveChangesAsync();
+                _toast.AddSuccessToastMessage("Rezervasyon işleminiz başarıyla gerçekleşmiştir..");
                 return RedirectToAction(nameof(Index));
             }
             return View(rezervasyon);

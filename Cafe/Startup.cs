@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NToastNotify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,12 @@ namespace Cafe
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
+            services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
+            {
+                CloseButton = true,
+                PositionClass=ToastPositions.BottomRight,
+                PreventDuplicates=true
+            });
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
