@@ -2,6 +2,7 @@
 using Cafe.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -49,12 +50,28 @@ namespace Cafe.Areas.Customer.Controllers
 		{
 			return View();
 		}
-		public IActionResult Rezervasyon()
-		{
-			return View();
-		}
 
-		public IActionResult Menu()
+        public IActionResult Rezervasyon()
+        {
+            return View();
+        }
+
+        // POST: Admin/Rezervasyon/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rezervasyon([Bind("Id,Name,Email,Telefon,Sayi,Saat,Tarih")] Rezervasyon rezervasyon)
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Add(rezervasyon);
+                await _db.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(rezervasyon);
+        }
+        public IActionResult Menu()
         {
             var menu= _db.Menus.ToList();
             return View(menu);
