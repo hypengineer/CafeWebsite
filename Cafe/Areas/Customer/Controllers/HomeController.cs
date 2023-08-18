@@ -47,7 +47,8 @@ namespace Cafe.Areas.Customer.Controllers
 		}
 		public IActionResult About()
 		{
-			return View();
+            var about=_db.Abouts.ToList();
+			return View(about);
 		}
 		public IActionResult Galeri()
 		{
