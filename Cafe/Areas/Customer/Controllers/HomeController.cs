@@ -1,6 +1,7 @@
 ﻿using Cafe.Data;
 using Cafe.Models;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using NToastNotify;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,11 +21,13 @@ namespace Cafe.Areas.Customer.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _db;
         private readonly IToastNotification _toast;
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, IToastNotification toast)
+        private readonly IWebHostEnvironment _he;
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, IToastNotification toast, IWebHostEnvironment he)
         {
             _logger = logger;
             _db = db;
             _toast = toast;
+            _he = he;
         }
 
         public IActionResult Index()
@@ -41,11 +45,52 @@ namespace Cafe.Areas.Customer.Controllers
 		{
 			return View();
 		}
-		public IActionResult Blog()
-		{
-			return View();
-		}
-		public IActionResult About()
+        // GET: Admin/Blog/Create
+        public IActionResult Blog()
+        {
+            return View();
+        }
+
+        // POST: Admin/Blog/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Blog(Blog blog)
+        {
+            if (ModelState.IsValid)
+            {
+                blog.Tarih=DateTime.Now;
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count > 0)
+                {
+                    var fileName = Guid.NewGuid().ToString();
+                    var uploads = Path.Combine(_he.WebRootPath, @"Site/menu");
+                    var ext = Path.GetExtension(files[0].FileName);
+                    if (blog.Image != null)
+                    {
+                        var imagePath = Path.Combine(_he.WebRootPath, blog.Image.TrimStart('\\'));
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+                    using (var filesStreams = new FileStream(Path.Combine(uploads, fileName + ext), FileMode.Create))
+                    {
+                        files[0].CopyTo(filesStreams);
+
+                    }
+                    blog.Image = @"\Site\menu\" + fileName + ext;
+                }
+
+                _db.Add(blog);
+                await _db.SaveChangesAsync();
+                _toast.AddSuccessToastMessage("Teşekkür ederiz. Yorumunuz iletildi, Yorumunuz onaylandığında  yorumlar sayfasında görebilirsiniz");
+                return RedirectToAction(nameof(Index));
+            }
+            return View(blog);
+        }
+        public IActionResult About()
 		{
             var about=_db.Abouts.ToList();
 			return View(about);
