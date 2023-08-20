@@ -9,10 +9,12 @@ using Cafe.Data;
 using Cafe.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cafe.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class BlogController : Controller
     {
         private readonly ApplicationDbContext _context;
